@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja-JP">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>オークションラクーン自動処理ツール</title>
+
+  <!-- General CSS Files -->
+  <link href="css/tailwind.css" rel="stylesheet">
+  <link rel="icon" type="image/png" href="favicon.ico">
+
+  <!-- CSS Libraries -->
+  <link rel="stylesheet" href="./handsontable.min.css" />
+
+  <!-- Template CSS -->
+  <link rel="stylesheet" href="fontawesome/css/all.css">
+  
+</head>
+<body class="font-sans antialiased">
+  <div id="app" class="min-h-screen bg-gray-100">
+      <!-- Page Heading -->
+      <header class="bg-white shadow">
+          <div class="max-w-full mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            オークションラクーン自動処理ツール
+          </div>
+      </header>
+
+      <!-- Page Content -->
+      <main>
+        <div class="py-12">
+          <div class="max-w-fullxl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+              <div class="p-6 bg-white border-b border-gray-200">
+              <div id="main_form" class="mt-10 sm:mt-0">
+                <div class="">
+                  <div class="grid grid-cols-6">
+                    <div class="col-span-4">
+                      <h2 class="font-semibold text-xl text-gray-800 leading-tight">処理の自動実行</h2>
+                      <p class="text-left text-gray-800">処理間隔を設定し、開始ボタンをクリックしてください</p> 
+                    </div>
+                    <div class="col-span-2 text-right">
+                      <div id="crawler_status" class="ml-2 inline-flex justify-center py-2 px-4 text-md text-white font-medium rounded-md bg-red-600">停止中</div>
+                    </div>
+                  </div>
+                  <div class="mt-2 sm:rounded-lg bg-gray-200 p-2">
+                    <h3 class="font-semibold text-md text-gray-800 leading-tight md:col-span-4">処理間隔設定(分)</h3>
+                    
+                    <div>
+                      <div class="ml-2 inline-block">グループ１:<input id="every_minutes1" type="number" step="1" class="appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" placeholder="グループ１の処理間隔"></div>
+                      <div class="ml-2 inline-block">グループ２:<input id="every_minutes2" type="number" step="1" class="appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" placeholder="グループ２の処理間隔"></div>
+                      <label><input type="checkbox" id="hidden_chrome" value="1">ブラウザを表示しない</label>
+                    </div>
+                  </div>
+                  <div class="mt-2">
+                    <button type="button" id="start_button" class="ml-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                      開始
+                    </button>
+                    <button type="button" id="execute_function" class="ml-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    　処理実行
+                    </button>
+                  </div>
+                  <table class="mt-3 min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">処理名</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ステータス</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">前回完了日時</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                      <tr id="yahoo_easy_payment" class="hover:bg-indigo-100">
+                        <td class="px-6 py-4 whitespace-nowrap">ヤフーかんたん決済取り込み（グループ１）</td>
+                        <td class="status px-6 py-4 whitespace-nowrap">---</td>
+                        <td class="updated_at px-6 py-4 whitespace-nowrap">---</td>
+                      </tr>
+                      <tr id="auction_send1" class="hover:bg-indigo-100">
+                        <td class="px-6 py-4 whitespace-nowrap">ヤフオク一括送信(レベル2)（グループ２）</td>
+                        <td class="status px-6 py-4 whitespace-nowrap">---</td>
+                        <td class="updated_at px-6 py-4 whitespace-nowrap">---</td>
+                      </tr>
+                      <tr id="auction_send2" class="hover:bg-indigo-100">
+                        <td class="px-6 py-4 whitespace-nowrap">ヤフオク一括送信(レベル3)（グループ２）</td>
+                        <td class="status px-6 py-4 whitespace-nowrap">---</td>
+                        <td class="updated_at px-6 py-4 whitespace-nowrap">---</td>
+                      </tr>
+                      <tr id="yahoo_shop_send" class="hover:bg-indigo-100">
+                        <td class="px-6 py-4 whitespace-nowrap">ヤフーショッピング一括送信（グループ２）</td>
+                        <td class="status px-6 py-4 whitespace-nowrap">---</td>
+                        <td class="updated_at px-6 py-4 whitespace-nowrap">---</td>
+                      </tr>
+                      <tr id="rakuten_send" class="hover:bg-indigo-100">
+                        <td class="px-6 py-4 whitespace-nowrap">楽天市場一括送信（グループ２）</td>
+                        <td class="status px-6 py-4 whitespace-nowrap">---</td>
+                        <td class="updated_at px-6 py-4 whitespace-nowrap">---</td>
+                      </tr>
+                      <tr id="rakuten_confirm" class="hover:bg-indigo-100">
+                        <td class="px-6 py-4 whitespace-nowrap">楽天市場確認依頼（グループ２）</td>
+                        <td class="status px-6 py-4 whitespace-nowrap">---</td>
+                        <td class="updated_at px-6 py-4 whitespace-nowrap">---</td>
+                      </tr>
+                      <tr id="unknown_payment" class="hover:bg-indigo-100">
+                        <td class="px-6 py-4 whitespace-nowrap">不明入金（グループ１）</td>
+                        <td class="status px-6 py-4 whitespace-nowrap">---</td>
+                        <td class="updated_at px-6 py-4 whitespace-nowrap">---</td>
+                      </tr>
+                    </tbody>
+                  </table>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+        </div>
+      </main>
+  </div>
+
+  <!-- General JS Scripts -->
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.7.6/jquery.nicescroll.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+  <script src="eel.js"></script>
+  <script>
+
+    (async ()=>{
+      const config = await eel.load_config()()
+      console.log(config)
+      every_minutes1.value = config.every_minutes1
+      every_minutes2.value = config.every_minutes2
+      hidden_chrome.checked = config.hidden_chrome
+    })()
+
+    eel.expose(alert_js)
+    function alert_js(text){
+      alert(text);
+    }
+
+    eel.expose(update_status)
+    function update_status(function_id, status, updated_at){
+      let elm = document.getElementById(function_id)
+      if(status == "失敗"){
+        elm.querySelector(".status").classList.add(".text-red-700")
+      } else {
+        elm.querySelector(".status").classList.remove(".text-red-700")
+      }
+      elm.querySelector(".status").innerText = status
+      elm.querySelector(".updated_at").innerText = updated_at
+      //elm.querySelector(".updated_at").value = new Date()
+    }
+
+    start_button.addEventListener("click", ()=>{
+      eel.start_crawler()
+    })
+
+    execute_function.addEventListener("click", ()=>{
+      eel.execute_function()
+    })
+    
+    eel.expose(log)
+    function log(text){
+      log_area.value += text + "\n"
+    }
+
+    eel.expose(stop_completed)
+    function stop_completed(){
+      crawler_status.innerText = "停止中"
+      crawler_status.classList.remove("bg-green-600")
+      crawler_status.classList.add("bg-red-600")
+    }
+
+  </script>
+  
+</body>
+</html>
